@@ -1,0 +1,13 @@
+import unittest
+from lab1 import is_monotonic
+
+
+class TestMonotonic(unittest.TestCase):
+    def test_(self):
+        self.assertTrue(is_monotonic([1, 2, 3, 4, 5]))      
+        self.assertTrue(is_monotonic([5, 4, 3, 2, 1]))     
+        self.assertTrue(is_monotonic([1, 1, 1]))           
+        self.assertFalse(is_monotonic([1, 2, 2, 3, 2, 4]))  
+        self.assertTrue(is_monotonic([1, 2, 2, 3]))         
+if __name__ == '__main__':
+    unittest.main() 
