@@ -1,0 +1,43 @@
+def solve():
+    try:
+        
+        with open('input.txt', 'r') as f:
+            lines = f.readlines()
+        
+        if not lines:
+            return
+
+        adj = []
+        for line in lines:
+            adj.append(list(map(int, line.split())))
+        
+        v_count = len(adj)
+        visited = [False] * v_count
+        last_finished_v = 0
+
+        def dfs(v, visited_arr):
+            visited_arr[v] = True
+            for neighbor in adj[v]:
+                if not visited_arr[neighbor]:
+                    dfs(neighbor, visited_arr)
+
+        for i in range(v_count):
+            if not visited[i]:
+                dfs(i, visited)
+                last_finished_v = i
+
+        check_visited = [False] * v_count
+        dfs(last_finished_v, check_visited)
+        result = last_finished_v if all(check_visited) else -1
+
+        with open('output.txt', 'w') as f:
+            f.write(str(result))
+
+    except FileNotFoundError:
+        print("Файл input.txt не знайдено.")
+    except Exception as e:
+        with open('output.txt', 'w') as f:
+            f.write("-1")
+
+if __name__ == "__main__":
+    solve()
