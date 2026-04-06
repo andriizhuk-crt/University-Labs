@@ -1,0 +1,84 @@
+class TreeNode:
+    def __init__(self, value=None, left=None, right=None):
+        self.value = value
+        self.left = left
+        self.right = right
+
+    def sum_of_depths(self, current_depth=0):
+        """Рахує суму глибин усіх вузлів."""
+        res = current_depth
+        if self.left:
+            res += self.left.sum_of_depths(current_depth + 1)
+        if self.right:
+            res += self.right.sum_of_depths(current_depth + 1)
+        return res
+
+    @classmethod
+    def from_file(cls, filename):
+        """Будує дерево з файлу за рівнями."""
+        try:
+            with open(filename, 'r') as f:
+                lines = [line.split() for line in f.readlines() if line.strip()]
+            if not lines: return None
+
+            nodes_levels = []
+            for line in lines:
+                row = [cls(int(val)) if val != 'N' else None for val in line]
+                nodes_levels.append(row)
+
+            for i in range(len(nodes_levels) - 1):
+                for j in range(len(nodes_levels[i])):
+                    parent = nodes_levels[i][j]
+                    if parent:
+                        if j * 2 < len(nodes_levels[i + 1]):
+                            parent.left = nodes_levels[i + 1][j * 2]
+                        if j * 2 + 1 < len(nodes_levels[i + 1]):
+                            parent.right = nodes_levels[i + 1][j * 2 + 1]
+            return nodes_levels[0][0]
+        except Exception as e:
+            print(f"Помилка: {e}")
+            return None
+
+    def draw(self):
+        """Візуалізація згори донизу з компактними похилими рисками."""
+        if not self: return
+        
+        levels = []
+        queue = [(self, 0, 0)] 
+        while queue:
+            node, level, pos = queue.pop(0)
+            if len(levels) <= level:
+                levels.append([])
+            levels[level].append((node, pos))
+
+            offset = 4 if level == 0 else 2
+            if node.left:
+                queue.append((node.left, level + 1, pos - offset))
+            if node.right:
+                queue.append((node.right, level + 1, pos + offset))
+
+        min_pos = min(pos for lv in levels for _, pos in lv)
+        
+        for i, level_nodes in enumerate(levels):
+            node_line = [" "] * 100
+            slash_line = [" "] * 100
+            
+            for node, pos in level_nodes:
+                idx = pos - min_pos + 20 
+                node_line[idx : idx + len(str(node.value))] = str(node.value)
+                
+                if node.left:
+                    slash_line[idx - 1] = "/"
+                if node.right:
+                    slash_line[idx + 1] = "\\"
+            
+            print("".join(node_line).rstrip())
+            if any(s != " " for s in slash_line):
+                print("".join(slash_line).rstrip())
+
+if __name__ == "__main__":
+    root = TreeNode.from_file('tree.txt')
+    if root:
+        print("--- Структура дерева ---")
+        root.draw()
+        print(f"\nСума глибин усіх вузлів: {root.sum_of_depths()}")
